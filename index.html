@@ -178,24 +178,45 @@
   document.querySelectorAll("#nav a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
 
   document.getElementById("quoteForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const msg = document.getElementById("formMessage");
-    const data = Object.fromEntries(new FormData(form).entries());
-    msg.textContent = "Sending your enquiry...";
-    msg.className = "form-message";
+  e.preventDefault();
 
-    const { error } = await db.from("quote_requests").insert([data]);
-    if (error) {
-      console.error(error);
-      msg.textContent = "We couldn't save the enquiry right now. Please WhatsApp MASHWORKS on 068 354 1307.";
-      msg.className = "form-message error";
-      return;
-    }
-    msg.textContent = "Enquiry sent! MASHWORKS will contact you soon.";
-    msg.className = "form-message success";
-    form.reset();
-  });
+  const form = e.currentTarget;
+  const msg = document.getElementById("formMessage");
+  const data = Object.fromEntries(new FormData(form).entries());
+
+  msg.textContent = "Sending your enquiry...";
+  msg.className = "form-message";
+
+  // Save enquiry to Supabase
+  const { error } = await db.from("quote_requests").insert([data]);
+
+  if (error) {
+    console.error(error);
+    msg.textContent = "We couldn't save the enquiry. Please try WhatsApp directly.";
+    msg.className = "form-message error";
+    return;
+  }
+
+  // Create WhatsApp message
+  const whatsappMessage =
+    `*MASHWORKS - New Website Enquiry*%0A%0A` +
+    `*Name:* ${data.name}%0A` +
+    `*Phone:* ${data.phone}%0A` +
+    `*Service:* ${data.service}%0A` +
+    `*Location:* ${data.location}%0A` +
+    `*Description:* ${data.description}`;
+
+  // Open WhatsApp
+  const whatsappURL =
+    `https://wa.me/27683541307?text=${whatsappMessage}`;
+
+  window.location.href = whatsappURL;
+
+  msg.textContent = "Opening WhatsApp...";
+  msg.className = "form-message success";
+
+  form.reset();
+});
 </script>
 </body>
 </html>
