@@ -130,7 +130,7 @@
       <h2>Trusted by the Community</h2>
       <div class="review-card">
         <div class="stars">★★★★★</div>
-        <p>“Your real customer reviews will appear here. We’ll add them as MASHWORKS starts collecting feedback.”</p>
+        <p>"Your real customer reviews will appear here. We'll add them as MASHWORKS starts collecting feedback."</p>
         <small>— MASHWORKS customer reviews</small>
       </div>
     </div>
@@ -151,7 +151,7 @@
   <form id="quoteForm" class="quote-form">
     <label>Your Name<input name="name" required placeholder="Your name"></label>
     <label>WhatsApp Number<input name="phone" required type="tel" placeholder="068 354 1307"></label>
-    <label>Service Needed<select name="service" required><option value="">Select service</option><option>Plumbing</option><option>Welding & Gates</option><option>Carpentry</option><option>Ceiling</option><option>Painting</option><option>Paving</option><option>Renovations</option><option>Doors / Windows</option><option>Bathroom Installation</option><option>General Installation</option><option>Other</option></select></label>
+    <label>Service Needed<select name="service" required><option value="">Select service</option><option>Plumbing</option><option>Welding & Gates</option><option>Carpentry</option><option>Ceilings</option><option>Doors & Windows</option><option>Bathroom Installation</option><option>Painting</option><option>Renovations</option><option>General Maintenance</option><option>Paving</option></select></label>
     <label>Location<input name="location" required placeholder="e.g. Lebowakgomo"></label>
     <label class="full">Tell us about the job<textarea name="description" rows="5" placeholder="What needs to be done? Include useful measurements if you have them."></textarea></label>
     <button class="btn yellow full" type="submit">Send Enquiry →</button>
@@ -168,36 +168,43 @@
   <div class="copyright">© <span id="year"></span> MASHWORKS Services. All rights reserved.</div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://vzgfawurrxlogwaepjdh.supabase.co";
-  const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_dToPPZEsNyPkBlWwLh7bFQ_SdWk9jKF";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
   document.getElementById("year").textContent = new Date().getFullYear();
 
   const nav = document.getElementById("nav");
   document.getElementById("menuBtn").addEventListener("click", () => nav.classList.toggle("open"));
   document.querySelectorAll("#nav a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
 
-  document.getElementById("quoteForm").addEventListener("submit", async (e) => {
+  document.getElementById("quoteForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const msg = document.getElementById("formMessage");
+    
     const data = Object.fromEntries(new FormData(form).entries());
-    msg.textContent = "Sending your enquiry...";
-    msg.className = "form-message";
+    
+    // Create WhatsApp message
+    const whatsappMessage = `Hello MASHWORKS! I'd like a quote for your services.
 
-    const { error } = await db.from("quote_requests").insert([data]);
-    if (error) {
-      console.error(error);
-      msg.textContent = "We couldn't save the enquiry right now. Please WhatsApp MASHWORKS on 068 354 1307.";
-      msg.className = "form-message error";
-      return;
-    }
-    msg.textContent = "Enquiry sent! MASHWORKS will contact you soon.";
+📋 *Quote Request Details*
+👤 Name: ${data.name}
+📱 Phone: ${data.phone}
+🔧 Service: ${data.service}
+📍 Location: ${data.location}
+💬 Project Details: ${data.description}`;
+    
+    // Send to WhatsApp
+    const whatsappURL = `https://wa.me/27683541307?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    // Show confirmation
+    msg.textContent = "Opening WhatsApp to send your quote...";
     msg.className = "form-message success";
-    form.reset();
+    
+    // Redirect to WhatsApp after a short delay
+    setTimeout(() => {
+      window.open(whatsappURL, '_blank');
+      form.reset();
+      msg.textContent = "Quote sent! Check your WhatsApp or open it manually.";
+    }, 500);
   });
 </script>
 </body>
