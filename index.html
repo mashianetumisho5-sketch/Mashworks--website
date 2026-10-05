@@ -127,11 +127,46 @@
     <div class="review-panel" id="reviews">
       <div class="kicker">WHAT OUR CLIENTS SAY</div>
       <h2>Trusted by the Community</h2>
-      <div class="review-card">
-        <div class="stars">★★★★★</div>
-        <p>"Your real customer reviews will appear here. We'll add them as MASHWORKS starts collecting feedback."</p>
-        <small>— MASHWORKS customer reviews</small>
-      </div>
+
+      <form id="reviewForm" class="review-form">
+        <label>
+          Your Name
+          <input name="reviewName" type="text" placeholder="Your name" required>
+        </label>
+        <label>
+          Service Received
+          <select name="reviewService" required>
+            <option value="">Select a service</option>
+            <option>Plumbing</option>
+            <option>Welding & Gates</option>
+            <option>Carpentry</option>
+            <option>Ceilings</option>
+            <option>Doors & Windows</option>
+            <option>Bathroom Installation</option>
+            <option>Painting</option>
+            <option>Renovations</option>
+            <option>General Maintenance</option>
+            <option>Paving</option>
+          </select>
+        </label>
+        <label>
+          Rating
+          <select name="reviewRating" required>
+            <option value="">Choose rating</option>
+            <option>5 Stars</option>
+            <option>4 Stars</option>
+            <option>3 Stars</option>
+            <option>2 Stars</option>
+            <option>1 Star</option>
+          </select>
+        </label>
+        <label>
+          Your Review
+          <textarea name="reviewText" rows="4" placeholder="Tell us about your experience..." required></textarea>
+        </label>
+        <button class="btn yellow full" type="submit">Send Review</button>
+        <p id="reviewMessage" class="form-message"></p>
+      </form>
     </div>
   </div>
 </section>
@@ -216,6 +251,43 @@
       submitButton.textContent = "Send Enquiry →";
       formMessage.textContent = "Your quote request is ready in WhatsApp. Please send it to complete your enquiry.";
     }, 500);
+  });
+
+  const reviewForm = document.getElementById("reviewForm");
+  const reviewMessage = document.getElementById("reviewMessage");
+
+  reviewForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const reviewData = Object.fromEntries(new FormData(reviewForm).entries());
+    const name = String(reviewData.reviewName || "").trim();
+    const service = String(reviewData.reviewService || "").trim();
+    const rating = String(reviewData.reviewRating || "").trim();
+    const text = String(reviewData.reviewText || "").trim();
+
+    if (!name || !service || !rating || !text) {
+      reviewMessage.textContent = "Please complete all review fields before sending.";
+      reviewMessage.className = "form-message error";
+      return;
+    }
+
+    const emailSubject = encodeURIComponent(`MASHWORKS Customer Review - ${service}`);
+    const emailBody = encodeURIComponent(
+      `Customer Name: ${name}\n` +
+      `Service Received: ${service}\n` +
+      `Rating: ${rating}\n\n` +
+      `Review:\n${text}`
+    );
+
+    reviewMessage.textContent = "Opening your email app to send the review...";
+    reviewMessage.className = "form-message success";
+
+    window.location.href = `mailto:mashworks456@gmail.com?subject=${emailSubject}&body=${emailBody}`;
+
+    setTimeout(() => {
+      reviewForm.reset();
+      reviewMessage.textContent = "Your review is ready to send to mashworks456@gmail.com.";
+    }, 800);
   });
 </script>
 </body>
