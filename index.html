@@ -175,35 +175,47 @@
   document.getElementById("menuBtn").addEventListener("click", () => nav.classList.toggle("open"));
   document.querySelectorAll("#nav a").forEach(a => a.addEventListener("click", () => nav.classList.remove("open")));
 
-  document.getElementById("quoteForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const msg = document.getElementById("formMessage");
-    
-    const data = Object.fromEntries(new FormData(form).entries());
-    
-    // Create WhatsApp message
-    const whatsappMessage = `Hello MASHWORKS! I'd like a quote for your services.
+  const quoteForm = document.getElementById("quoteForm");
+  const formMessage = document.getElementById("formMessage");
+  const submitButton = quoteForm.querySelector('button[type="submit"]');
 
-📋 *Quote Request Details*
-👤 Name: ${data.name}
-📱 Phone: ${data.phone}
-🔧 Service: ${data.service}
-📍 Location: ${data.location}
-💬 Project Details: ${data.description}`;
-    
-    // Send to WhatsApp
+  quoteForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const formData = Object.fromEntries(new FormData(quoteForm).entries());
+    const requiredFields = ["name", "phone", "service", "location", "description"];
+
+    const hasMissingField = requiredFields.some(field => !String(formData[field] || "").trim());
+    if (hasMissingField) {
+      formMessage.textContent = "Please fill in all quote details before sending.";
+      formMessage.className = "form-message error";
+      return;
+    }
+
+    const whatsappMessage = [
+      "Hello MASHWORKS, I would like to request a quote.",
+      "",
+      "Quote Request Details",
+      "Name: " + formData.name,
+      "Phone: " + formData.phone,
+      "Service: " + formData.service,
+      "Location: " + formData.location,
+      "Project Details: " + formData.description
+    ].join("\n");
+
     const whatsappURL = `https://wa.me/27683541307?text=${encodeURIComponent(whatsappMessage)}`;
-    
-    // Show confirmation
-    msg.textContent = "Opening WhatsApp to send your quote...";
-    msg.className = "form-message success";
-    
-    // Redirect to WhatsApp after a short delay
+
+    formMessage.textContent = "Opening WhatsApp with your quote...";
+    formMessage.className = "form-message success";
+    submitButton.disabled = true;
+    submitButton.textContent = "Opening WhatsApp...";
+
     setTimeout(() => {
-      window.open(whatsappURL, '_blank');
-      form.reset();
-      msg.textContent = "Quote sent! Check your WhatsApp or open it manually.";
+      window.open(whatsappURL, "_blank", "noopener");
+      quoteForm.reset();
+      submitButton.disabled = false;
+      submitButton.textContent = "Send Enquiry →";
+      formMessage.textContent = "Your quote request is ready in WhatsApp. Please send it to complete your enquiry.";
     }, 500);
   });
 </script>
